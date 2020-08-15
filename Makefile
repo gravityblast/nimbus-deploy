@@ -20,22 +20,25 @@ kill_docker_container:
 step_1_setup_system:
 	ansible-playbook -i inventory.yml -u root setup/playbook.yml
 
-step_2_build_docker_image: build_docker_image
+step_2_mount_storage:
+	ansible-playbook -i inventory.yml storage/playbook.yml
 
-step_3_docker_build_nimbus: docker_build_nimbus
+step_3_build_docker_image: build_docker_image
 
-step_4_upload_executable:
+step_4_docker_build_nimbus: docker_build_nimbus
+
+step_5_upload_executable:
 	ansible-playbook -i inventory.yml nimbus/playbook.yml --tags upload_exec
 
-step_5_upload_keys:
+step_6_upload_keys:
 	ansible-playbook -i inventory.yml nimbus/playbook.yml --tags upload_keys
 
-step_6_setup_nimbus:
+step_7_setup_nimbus:
 	ansible-playbook -i inventory.yml nimbus/playbook.yml --tags setup
 
-step_7_import_keys:
+step_8_import_keys:
 	@echo "run this on the server:"
 	@echo "sudo beacon_node deposits import  --data-dir=/var/nimbus/data/shared_medalla_0 /var/nimbus/validator_keys/"
 
-step_8_run_nimbus:
+step_9_run_nimbus:
 	ansible-playbook -i inventory.yml nimbus/playbook.yml --tags run
