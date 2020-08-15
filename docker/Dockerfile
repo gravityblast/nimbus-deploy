@@ -1,0 +1,20 @@
+FROM ubuntu:20.04
+
+RUN apt-get update && apt-get install -y \
+      build-essential \
+      git \
+      libpcre3-dev
+ADD https://api.github.com/repos/status-im/nim-beacon-chain/git/refs/heads/devel version.json
+
+RUN git clone \
+      --depth 1 \
+      -b devel \
+      https://github.com/status-im/nim-beacon-chain \
+      /nimbus && \
+    cd /nimbus && make update
+
+COPY ./build.sh /nimbus/
+
+WORKDIR /nimbus
+
+CMD "./build.sh"

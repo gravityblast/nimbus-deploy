@@ -1,0 +1,85 @@
+- hosts: all
+  become: true
+  vars:
+    - nimbus_path: /usr/local/nimbus
+    - nimbus_user: nimbus
+    - nimbus_data_dir: /var/nimbus/data/shared_medalla_0
+    - validator_keys_path: /var/nimbus/validator_keys
+  tasks:
+    - name: Create nimbus user
+      tags:
+        - setup
+        - users
+      user:
+        name: "{{ nimbus_user }}"
+        state: present
+        append: true
+        create_home: true
+        shell: /bin/bash
+
+    - name: Upload executable
+      tags:
+        - never
+        - upload_exec
+      copy:
+        src: ../build/beacon_node
+        dest: /usr/bin/
+
+    - name: Upload run file
+      tags:
+        - setup
+        - upload_exec
+      copy:
+        src: nimbus_run
+        dest: /usr/bin/
+
+    - name: Fix executable permissions
+      tags:
+        - setup
+        - chmod
+      file:
+        dest: /usr/bin/beacon_node
+        mode: +x
+
+    - name: Fix run file permissions
+      tags:
+        - setup
+        - chmod
+      file:
+        dest: /usr/bin/nimbus_run
+        mode: +x
+
+    - name: Create nimbus data folder
+      tags:
+        - setup
+        - folders
+      file:
+        path: "{{ nimbus_data_dir }}"
+        state: directory
+
+    - name: Install nimbus unit files
+      tags:
+        - setup
+        - systemd
+      copy:
+        src: "nimbus.service"
+        dest: "/etc/systemd/system/nimbus.service"
+
+    - name: Upload validator keys
+      tags:
+        - never
+        - upload_keys
+      copy:
+        src: "../assets/validator_keys"
+        dest: "{{ validator_keys_path }}"
+
+    - name: Enable service nimbus
+      tags:
+        - systemd
+        - run
+        - restart
+      systemd:
+        name: nimbus
+        state: restarted
+        enabled: true
+        daemon_reload: true

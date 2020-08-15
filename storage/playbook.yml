@@ -1,0 +1,28 @@
+- hosts: all
+  become: true
+  tasks:
+    - name: Create a primary partition
+      parted:
+        device: /dev/vdb
+        number: 1
+        state: present
+        label: gpt
+        part_type: primary
+        part_start: "0%"
+        part_end: "100%"
+        unit: MiB
+
+    - name: Create an EXT4 filesystem
+      filesystem:
+        fstype: ext4
+        dev: /dev/vdb1
+
+    - name: Mount the storage
+      mount:
+        path: /var/nimbus
+        src: /dev/vdb1
+        fstype: ext4
+        opts: defaults,noatime,nofail
+        passno: "0"
+        state: mounted
+
