@@ -1,44 +1,67 @@
 BUILD_DIR=./build
-DOCKER_IMAGE_NAME=beacon_chain_builder
-DOCKER_CONTAINER_NAME=beacon_chain_builder
 
-build_docker_image:
-	docker build --no-cache -t $(DOCKER_IMAGE_NAME) docker
+NIMBUS_DOCKER_IMAGE_NAME=beacon_chain_builder
+NIMBUS_DOCKER_CONTAINER_NAME=beacon_chain_builder
+
+ETH2STATS_DOCKER_IMAGE_NAME=eth2stats_builder
+ETH2STATS_DOCKER_CONTAINER_NAME=eth2stats_builder
 
 setup_build_folder:
 	mkdir -p $(BUILD_DIR)
 
+build_nimbus_docker_image:
+	docker build --no-cache -t $(NIMBUS_DOCKER_IMAGE_NAME) -f docker/Dockerfile.nimbus docker
+
+build_eth2stats_docker_image:
+	docker build --no-cache -t $(ETH2STATS_DOCKER_IMAGE_NAME) -f docker/Dockerfile.eth2stats docker
+
 docker_build_nimbus: setup_build_folder
 	docker run --rm \
-		--name $(DOCKER_CONTAINER_NAME) \
+		--name $(NIMBUS_DOCKER_CONTAINER_NAME) \
 		-v $$(pwd)/$(BUILD_DIR):/nimbus/build \
-		$(DOCKER_IMAGE_NAME)
+		$(NIMBUS_DOCKER_IMAGE_NAME)
+
+docker_build_eth2stats: setup_build_folder
+	docker run --rm \
+		--name $(ETH2STATS_DOCKER_CONTAINER_NAME) \
+		-v $$(pwd)/$(BUILD_DIR):/eth2stats/build \
+		$(ETH2STATS_DOCKER_IMAGE_NAME)
 
 kill_docker_container:
-	docker kill $(DOCKER_CONTAINER_NAME)
+	docker kill $(NIMBUS_DOCKER_CONTAINER_NAME)
 
-step_1_setup_system:
-	ansible-playbook -i inventory.yml -u root setup/playbook.yml
+step_01_setup_system:
+	ansible-playbook -i inventory.yml -u root system/playbook.yml
 
-step_2_mount_storage:
+step_02_mount_storage:
 	ansible-playbook -i inventory.yml storage/playbook.yml
 
-step_3_build_docker_image: build_docker_image
+step_03_build_nimbus_docker_image: build_nimbus_docker_image
 
-step_4_docker_build_nimbus: docker_build_nimbus
+step_04_docker_build_nimbus: docker_build_nimbus
 
-step_5_upload_executable:
+step_05_upload_nimbus_executable:
 	ansible-playbook -i inventory.yml nimbus/playbook.yml --tags upload_exec
 
-step_6_upload_keys:
+step_06_upload_keys:
 	ansible-playbook -i inventory.yml nimbus/playbook.yml --tags upload_keys
 
-step_7_setup_nimbus:
+step_07_setup_nimbus:
 	ansible-playbook -i inventory.yml nimbus/playbook.yml --tags setup
 
-step_8_import_keys:
+step_08_import_keys:
 	@echo "run this on the server:"
 	@echo "sudo beacon_node deposits import  --data-dir=/var/nimbus/data/shared_medalla_0 /var/nimbus/validator_keys/"
 
-step_9_run_nimbus:
+step_09_run_nimbus:
 	ansible-playbook -i inventory.yml nimbus/playbook.yml --tags run
+
+step_10_build_eth2stats_docker_image: build_eth2stats_docker_image
+
+step_11_docker_build_eth2stats: docker_build_eth2stats
+
+step_12_upload_eth2stats_executable:
+	ansible-playbook -i inventory.yml eth2stats/playbook.yml --tags upload_exec
+
+step_13_run_eth2stats:
+	ansible-playbook -i inventory.yml eth2stats/playbook.yml

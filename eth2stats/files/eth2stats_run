@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+eth2stats-client run \
+  --eth2stats.node-name="broom" \
+  --data.folder /var/eth2stats/data \
+  --eth2stats.addr="grpc.medalla.eth2stats.io:443" --eth2stats.tls=true \
+  --beacon.type="nimbus" \
+  --beacon.addr="http://localhost:9190" \
+  --beacon.metrics-addr="http://localhost:8008/metrics"

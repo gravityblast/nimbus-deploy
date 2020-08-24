@@ -1,0 +1,65 @@
+- hosts: all
+  become: true
+  vars:
+    - eth2stats_data_dir: /var/eth2stats/data
+  tasks:
+    - name: Upload executable
+      tags:
+        - never
+        - upload_exec
+      copy:
+        src: ../build/eth2stats-client
+        dest: /usr/bin/
+
+    - name: Upload run file
+      tags:
+        - setup
+        - upload_exec
+      copy:
+        src: eth2stats_run
+        dest: /usr/bin/
+
+    - name: Fix executable permissions
+      tags:
+        - setup
+        - chmod
+        - upload_exec
+      file:
+        dest: /usr/bin/eth2stats-client
+        mode: +x
+
+    - name: Fix run file permissions
+      tags:
+        - setup
+        - chmod
+        - upload_exec
+      file:
+        dest: /usr/bin/eth2stats_run
+        mode: +x
+
+    - name: Create eth2stats data folder
+      tags:
+        - setup
+        - folders
+      file:
+        path: "{{ eth2stats_data_dir }}"
+        state: directory
+
+    - name: Install eth2stats unit files
+      tags:
+        - setup
+        - systemd
+      copy:
+        src: "eth2stats.service"
+        dest: "/etc/systemd/system/eth2stats.service"
+
+    - name: Enable service eth2stats
+      tags:
+        - systemd
+        - run
+        - restart
+      systemd:
+        name: eth2stats
+        state: restarted
+        enabled: true
+        daemon_reload: true

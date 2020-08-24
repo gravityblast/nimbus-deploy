@@ -37,6 +37,7 @@
       tags:
         - setup
         - chmod
+        - upload_exec
       file:
         dest: /usr/bin/beacon_node
         mode: +x
@@ -45,6 +46,7 @@
       tags:
         - setup
         - chmod
+        - upload_exec
       file:
         dest: /usr/bin/nimbus_run
         mode: +x

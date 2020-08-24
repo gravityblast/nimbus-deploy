@@ -10,11 +10,10 @@ RUN git clone \
       --depth 1 \
       -b devel \
       https://github.com/status-im/nim-beacon-chain \
-      /nimbus && \
-    cd /nimbus && make update
+      /nimbus
 
-COPY ./build.sh /nimbus/
+COPY ./build-nimbus.sh /nimbus/
 
 WORKDIR /nimbus
 
-CMD "./build.sh"
+CMD "./build-nimbus.sh"

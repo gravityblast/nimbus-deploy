@@ -1,7 +1,7 @@
 - hosts: all
   become: true
   vars:
-    create_user: gravityblast
+    create_user: "{{ lookup('env', 'USER') }}"
     copy_local_key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
     sys_packages: ['vim', 'git', 'build-essential', 'git', 'libpcre3-dev', 'ufw', 'jq']
 
@@ -47,7 +47,7 @@
         line: 'PermitRootLogin prohibit-password'
 
 # Install Packages
-    - name: Update apt
+    - name: Install packages
       apt: update_cache=yes
 
     - name: Install required system packages

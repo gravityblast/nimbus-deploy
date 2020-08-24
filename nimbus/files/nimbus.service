@@ -4,8 +4,7 @@ Description=Nimbus Service
 [Service]
 ExecStart=/usr/bin/nimbus_run
 Restart=always
-RuntimeMaxSec=10800
-
+RuntimeMaxSec=21600
 
 [Install]
 WantedBy=multi-user.target
