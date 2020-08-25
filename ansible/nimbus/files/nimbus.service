@@ -6,7 +6,7 @@ ExecStart=/usr/bin/nimbus_run
 User=nimbus
 Group=nimbus
 Restart=always
-RuntimeMaxSec=21600
+# RuntimeMaxSec=21600
 
 [Install]
 WantedBy=default.target
