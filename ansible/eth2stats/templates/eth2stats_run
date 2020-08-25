@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 eth2stats-client run \
-  --eth2stats.node-name="broom" \
+  --eth2stats.node-name="{{ nimbus_node_name }}" \
   --data.folder /var/eth2stats/data \
   --eth2stats.addr="grpc.medalla.eth2stats.io:443" --eth2stats.tls=true \
   --beacon.type="nimbus" \

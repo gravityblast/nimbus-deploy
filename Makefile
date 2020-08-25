@@ -1,3 +1,7 @@
+# Copy config.env.example to config.env and insert the variables values.
+
+include config.env
+
 BUILD_DIR=./build
 
 NIMBUS_DOCKER_IMAGE_NAME=beacon_chain_builder
@@ -5,6 +9,11 @@ NIMBUS_DOCKER_CONTAINER_NAME=beacon_chain_builder
 
 ETH2STATS_DOCKER_IMAGE_NAME=eth2stats_builder
 ETH2STATS_DOCKER_CONTAINER_NAME=eth2stats_builder
+
+config:
+ifndef NIMBUS_NODE_NAME
+	$(error NIMBUS_NODE_NAME is undefined)
+endif
 
 setup_build_folder:
 	mkdir -p $(BUILD_DIR)
@@ -30,38 +39,56 @@ docker_build_eth2stats: setup_build_folder
 kill_docker_container:
 	docker kill $(NIMBUS_DOCKER_CONTAINER_NAME)
 
-step_01_setup_system:
-	ansible-playbook -i inventory.yml -u root system/playbook.yml
+# It sets up the system creating a user with no password and the same username as the one used in local to run the script.
+# It uploads ~/.ssh/id_rsa.pub in ~/.ssh/authorized_keys.
+# It sets up a firewall allowing only ssh and port 9000 for nimbus.
+step_01_setup_system: config
+	ansible-playbook -i inventory.yml -u root ansible/system/playbook.yml
 
-step_02_mount_storage:
-	ansible-playbook -i inventory.yml storage/playbook.yml
+# It creates a partition and mounts STORAGE_DEVICE_ID to /var/nimbus-storage.
+step_02_mount_storage: config
+	ansible-playbook -i inventory.yml ansible/storage/playbook.yml
 
-step_03_build_nimbus_docker_image: build_nimbus_docker_image
+# It builds a docker image used to build nimbus.
+step_03_build_nimbus_docker_image: config build_nimbus_docker_image
 
-step_04_docker_build_nimbus: docker_build_nimbus
+# It builds nimbus inside docker.
+step_04_docker_build_nimbus: config docker_build_nimbus
 
-step_05_upload_nimbus_executable:
-	ansible-playbook -i inventory.yml nimbus/playbook.yml --tags upload_exec
+# It uploads the nimbus executable.
+step_05_upload_nimbus_executable: config
+	ansible-playbook -i inventory.yml ansible/nimbus/playbook.yml --tags upload_exec
 
-step_06_upload_keys:
-	ansible-playbook -i inventory.yml nimbus/playbook.yml --tags upload_keys
+# It creates a nimbus user used to run nimbus, and the folders in /var/nimbus-storage/nimbus.
+step_06_setup_nimbus: config
+	ansible-playbook -i inventory.yml ansible/nimbus/playbook.yml --tags setup
 
-step_07_setup_nimbus:
-	ansible-playbook -i inventory.yml nimbus/playbook.yml --tags setup
+# It uploads your validators keys. They must be in ./assets/validator_keys.
+step_07_upload_keys: config
+ifeq ($(wildcard ./assets/validator_keys),)
+	$(error "the ./assets/validator_keys folder must exist")
+endif
+	ansible-playbook -i inventory.yml ansible/nimbus/playbook.yml --tags upload_keys
 
-step_08_import_keys:
+# It prints what to run on the server to import your keys in nimbus.
+step_08_import_keys: config
 	@echo "run this on the server:"
-	@echo "sudo beacon_node deposits import  --data-dir=/var/nimbus/data/shared_medalla_0 /var/nimbus/validator_keys/"
+	@echo "sudo beacon_node deposits import  --data-dir=/var/nimbus-storage/nimbus/data/shared_medalla_0 /var/nimbus/validator_keys/"
 
-step_09_run_nimbus:
-	ansible-playbook -i inventory.yml nimbus/playbook.yml --tags run
+# It enables the systemd nimbus service.
+step_09_run_nimbus: config
+	ansible-playbook -i inventory.yml ansible/nimbus/playbook.yml --tags run
 
-step_10_build_eth2stats_docker_image: build_eth2stats_docker_image
+# It builds a docker image used to build eth2stats.
+step_10_build_eth2stats_docker_image: config build_eth2stats_docker_image
 
-step_11_docker_build_eth2stats: docker_build_eth2stats
+# It builds eth2stats inside docker.
+step_11_docker_build_eth2stats: config docker_build_eth2stats
 
-step_12_upload_eth2stats_executable:
-	ansible-playbook -i inventory.yml eth2stats/playbook.yml --tags upload_exec
+# It uploads the eth2stats executable.
+step_12_upload_eth2stats_executable: config
+	ansible-playbook -i inventory.yml ansible/eth2stats/playbook.yml --tags upload_exec
 
-step_13_run_eth2stats:
-	ansible-playbook -i inventory.yml eth2stats/playbook.yml
+# It runs eth2stats taking the node name from the NIMBUS_NODE_NAME env variable.
+step_13_run_eth2stats: config
+	ansible-playbook -i inventory.yml ansible/eth2stats/playbook.yml

@@ -1,9 +1,13 @@
 - hosts: all
   become: true
+  vars:
+    device: "{{ lookup('env', 'STORAGE_DEVICE_ID') }}"
+    opts: discard,defaults,noatime
+    path: /var/nimbus-storage
   tasks:
     - name: Create a primary partition
       parted:
-        device: /dev/vdb
+        device: "{{ device }}"
         number: 1
         state: present
         label: gpt
@@ -15,14 +19,13 @@
     - name: Create an EXT4 filesystem
       filesystem:
         fstype: ext4
-        dev: /dev/vdb1
+        dev: "{{ device }}"
 
     - name: Mount the storage
       mount:
-        path: /var/nimbus
-        src: /dev/vdb1
+        path: "{{ path }}"
         fstype: ext4
-        opts: defaults,noatime,nofail
+        src: "{{ device }}"
+        opts: "{{ opts }}"
         passno: "0"
         state: mounted
-

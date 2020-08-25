@@ -1,10 +1,9 @@
 - hosts: all
   become: true
   vars:
-    - nimbus_path: /usr/local/nimbus
     - nimbus_user: nimbus
-    - nimbus_data_dir: /var/nimbus/data/shared_medalla_0
-    - validator_keys_path: /var/nimbus/validator_keys
+    - nimbus_data_dir: /var/nimbus-storage/nimbus/data/shared_medalla_0
+    - validator_keys_path: /var/nimbus-storage/nimbus/validator_keys
   tasks:
     - name: Create nimbus user
       tags:
@@ -22,7 +21,7 @@
         - never
         - upload_exec
       copy:
-        src: ../build/beacon_node
+        src: ../../build/beacon_node
         dest: /usr/bin/
 
     - name: Upload run file
@@ -40,7 +39,7 @@
         - upload_exec
       file:
         dest: /usr/bin/beacon_node
-        mode: +x
+        mode: g+rx,o+rx
 
     - name: Fix run file permissions
       tags:
@@ -49,15 +48,19 @@
         - upload_exec
       file:
         dest: /usr/bin/nimbus_run
-        mode: +x
+        mode: g+rx,o+rx
 
     - name: Create nimbus data folder
       tags:
         - setup
         - folders
+        - upload_keys
+        - foo
       file:
         path: "{{ nimbus_data_dir }}"
         state: directory
+        owner: "{{ nimbus_user }}"
+        group: "{{ nimbus_user }}"
 
     - name: Install nimbus unit files
       tags:
@@ -74,6 +77,8 @@
       copy:
         src: "../assets/validator_keys"
         dest: "{{ validator_keys_path }}"
+        owner: "{{ nimbus_user }}"
+        group: "{{ nimbus_user }}"
 
     - name: Enable service nimbus
       tags:

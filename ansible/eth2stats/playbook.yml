@@ -1,21 +1,22 @@
 - hosts: all
   become: true
   vars:
-    - eth2stats_data_dir: /var/eth2stats/data
+    nimbus_node_name: "{{ lookup('env', 'NIMBUS_NODE_NAME') }}"
+    eth2stats_data_dir: /var/eth2stats/data
   tasks:
     - name: Upload executable
       tags:
         - never
         - upload_exec
       copy:
-        src: ../build/eth2stats-client
+        src: ../../build/eth2stats-client
         dest: /usr/bin/
 
     - name: Upload run file
       tags:
         - setup
         - upload_exec
-      copy:
+      template:
         src: eth2stats_run
         dest: /usr/bin/
 
@@ -26,7 +27,7 @@
         - upload_exec
       file:
         dest: /usr/bin/eth2stats-client
-        mode: +x
+        mode: g+rx,o+rx
 
     - name: Fix run file permissions
       tags:
@@ -35,7 +36,7 @@
         - upload_exec
       file:
         dest: /usr/bin/eth2stats_run
-        mode: +x
+        mode: g+rx,o+rx
 
     - name: Create eth2stats data folder
       tags:
