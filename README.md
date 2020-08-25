@@ -5,6 +5,12 @@ Copy config.env.example to config.env and insert the variables values.
 
 Copy inventory.yml.example to inventory.yml and set your server name.
 
+## Requirements
+
+* ansible installed in the local machine.
+* a remote server with ubuntu.
+* root access with ssh public key (put your local `~/.ssh/id_rsa.pub` in your remote `/root/.ssh/authorized_keys` file) to run the first step as root.
+
 ## Steps
 
 ### Step 1
