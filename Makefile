@@ -1,4 +1,5 @@
 # Copy config.env.example to config.env and insert the variables values.
+# Copy inventory.yml.example to inventory.yml and set your server name.
 
 include config.env
 
