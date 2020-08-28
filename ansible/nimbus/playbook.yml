@@ -28,7 +28,7 @@
       tags:
         - setup
         - upload_exec
-      copy:
+      template:
         src: nimbus_run
         dest: /usr/bin/
 
@@ -79,6 +79,27 @@
         dest: "{{ validator_keys_path }}"
         owner: "{{ nimbus_user }}"
         group: "{{ nimbus_user }}"
+
+    - name: Setup logrotate
+      tags:
+        - setup
+        - logrotate
+      template:
+        mode: u=rw,g=r,o=r
+        src: logrotate.conf
+        dest: "/etc/logrotate.d/nimbus"
+
+    - name: Add cronjob for logrotate
+      tags:
+        - setup
+        - logrotate
+        - cron
+      cron:
+        name: "logrotate nimbus"
+        minute: "0"
+        hour: "*"
+        job: "/usr/sbin/logrotate /etc/logrotate.d/nimbus --state {{ nimbus_data_dir }}/log/logrotate-state"
+        user: "{{ nimbus_user }}"
 
     - name: Enable service nimbus
       tags:

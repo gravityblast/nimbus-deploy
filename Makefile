@@ -47,8 +47,11 @@ step_01_setup_system: config
 	ansible-playbook -i inventory.yml -u root ansible/system/playbook.yml
 
 # It creates a partition and mounts STORAGE_DEVICE_ID to /var/nimbus-storage.
-step_02_mount_storage: config
+step_02_format_and_mount_storage: config
 	ansible-playbook -i inventory.yml ansible/storage/playbook.yml
+
+step_02_only_mount_storage: config
+	ansible-playbook -i inventory.yml ansible/storage/playbook.yml --tags mount
 
 # It builds a docker image used to build nimbus.
 step_03_build_nimbus_docker_image: config build_nimbus_docker_image

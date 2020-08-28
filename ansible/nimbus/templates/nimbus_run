@@ -3,8 +3,8 @@
 beacon_node \
   --network=medalla \
   --log-level="DEBUG" \
-  --log-file=/var/nimbus-storage/nimbus/data/shared_medalla_0/log/nbc_bn_$(date +"%Y%m%d%H%M%S").log \
-  --data-dir=/var/nimbus-storage/nimbus/data/shared_medalla_0 \
+  --log-file={{ nimbus_data_dir }}/log/nbc_bn_$(date +"%Y%m%d%H%M%S").log \
+  --data-dir={{ nimbus_data_dir }} \
   --web3-url=wss://goerli.infura.io/ws/v3/809a18497dd74102b5f37d25aae3c85a \
   --tcp-port=9000 \
   --udp-port=9000 \

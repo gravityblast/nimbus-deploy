@@ -6,6 +6,8 @@
     path: /var/nimbus-storage
   tasks:
     - name: Create a primary partition
+      tags:
+        - partition
       parted:
         device: "{{ device }}"
         number: 1
@@ -17,11 +19,15 @@
         unit: MiB
 
     - name: Create an EXT4 filesystem
+      tags:
+        - partition
       filesystem:
         fstype: ext4
         dev: "{{ device }}"
 
     - name: Mount the storage
+      tags:
+        - mount
       mount:
         path: "{{ path }}"
         fstype: ext4
