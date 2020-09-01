@@ -79,20 +79,24 @@ step_08_import_keys: config
 	@echo "run this on the server:"
 	@echo "sudo beacon_node deposits import  --data-dir=/var/nimbus-storage/nimbus/data/shared_medalla_0 /var/nimbus/validator_keys/"
 
+# Removes the validator keys from the server.
+step_09_remove_keys: config
+	ansible-playbook -i inventory.yml ansible/nimbus/playbook.yml --tags remove_keys
+
 # It enables the systemd nimbus service.
-step_09_run_nimbus: config
+step_10_run_nimbus: config
 	ansible-playbook -i inventory.yml ansible/nimbus/playbook.yml --tags run
 
 # It builds a docker image used to build eth2stats.
-step_10_build_eth2stats_docker_image: config build_eth2stats_docker_image
+step_11_build_eth2stats_docker_image: config build_eth2stats_docker_image
 
 # It builds eth2stats inside docker.
-step_11_docker_build_eth2stats: config docker_build_eth2stats
+step_12_docker_build_eth2stats: config docker_build_eth2stats
 
 # It uploads the eth2stats executable.
-step_12_upload_eth2stats_executable: config
+step_13_upload_eth2stats_executable: config
 	ansible-playbook -i inventory.yml ansible/eth2stats/playbook.yml --tags upload_exec
 
 # It runs eth2stats taking the node name from the NIMBUS_NODE_NAME env variable.
-step_13_run_eth2stats: config
+step_14_run_eth2stats: config
 	ansible-playbook -i inventory.yml ansible/eth2stats/playbook.yml

@@ -65,30 +65,36 @@ It prints what to run on the server to import your keys in nimbus.
 
 ### Step 9
 
-`make step_09_run_nimbus`
+`step_09_remove_keys: config`
 
-It enables the systemd nimbus service.
+Removes the validator keys from the server.
 
 ### Step 10
 
-`make step_10_build_eth2stats_docker_image`
+`make step_10_run_nimbus`
 
-It builds a docker image used to build eth2stats.
+It enables the systemd nimbus service.
 
 ### Step 11
 
-`make step_11_docker_build_eth2stats`
+`make step_11_build_eth2stats_docker_image`
 
-It builds eth2stats inside docker.
+It builds a docker image used to build eth2stats.
 
 ### Step 12
 
-`make step_12_upload_eth2stats_executable`
+`make step_12_docker_build_eth2stats`
 
-It uploads the eth2stats executable.
+It builds eth2stats inside docker.
 
 ### Step 13
 
-`make step_13_run_eth2stats`
+`make step_13_upload_eth2stats_executable`
+
+It uploads the eth2stats executable.
+
+### Step 14
+
+`make step_14_run_eth2stats`
 
 It runs eth2stats taking the node name from the NIMBUS_NODE_NAME env variable.

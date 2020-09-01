@@ -80,6 +80,14 @@
         owner: "{{ nimbus_user }}"
         group: "{{ nimbus_user }}"
 
+    - name: Remove validator keys
+      tags:
+        - never
+        - remove_keys
+      file:
+        state: absent
+        path: "{{ validator_keys_path }}"
+
     - name: Setup logrotate
       tags:
         - setup
