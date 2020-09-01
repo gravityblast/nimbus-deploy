@@ -21,9 +21,15 @@ It sets up the system creating a user with no password and the same username as 
 It uploads ~/.ssh/id_rsa.pub in ~/.ssh/authorized_keys.
 It sets up a firewall allowing only ssh and port 9000 for nimbus.
 
-### Step 2
+### Step 2 (OPTIONAL)
 
-`make step_02_mount_storage`
+Optional:
+
+`make step_02_format_and_mount_storage`
+
+or
+
+`make step_02_only_mount_storage`
 
 It creates a partition and mounts STORAGE_DEVICE_ID to /var/nimbus-storage.
 
@@ -65,7 +71,7 @@ It prints what to run on the server to import your keys in nimbus.
 
 ### Step 9
 
-`step_09_remove_keys: config`
+`make step_09_remove_keys`
 
 Removes the validator keys from the server.
 
