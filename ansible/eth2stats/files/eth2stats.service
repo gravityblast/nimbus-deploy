@@ -4,6 +4,7 @@ Description=ETH2 Stats Service
 [Service]
 ExecStart=/usr/bin/eth2stats_run
 Restart=always
+LogLevelMax=crit
 
 [Install]
 WantedBy=multi-user.target
