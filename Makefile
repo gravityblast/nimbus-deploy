@@ -20,10 +20,10 @@ setup_build_folder:
 	mkdir -p $(BUILD_DIR)
 
 build_nimbus_docker_image:
-	docker build --no-cache -t $(NIMBUS_DOCKER_IMAGE_NAME) -f docker/Dockerfile.nimbus docker
+	docker build --no-cache -t $(NIMBUS_DOCKER_IMAGE_NAME) docker/nimbus
 
 build_eth2stats_docker_image:
-	docker build --no-cache -t $(ETH2STATS_DOCKER_IMAGE_NAME) -f docker/Dockerfile.eth2stats docker
+	docker build --no-cache -t $(ETH2STATS_DOCKER_IMAGE_NAME) docker/eth2stats
 
 docker_build_nimbus: setup_build_folder
 	docker run --rm \
