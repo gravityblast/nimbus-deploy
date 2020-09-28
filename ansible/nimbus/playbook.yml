@@ -1,9 +1,10 @@
 - hosts: all
   become: true
   vars:
-    - nimbus_user: nimbus
-    - nimbus_data_dir: /var/nimbus-storage/nimbus/data/shared_medalla_0
-    - validator_keys_path: /var/nimbus-storage/nimbus/validator_keys
+    nimbus_user: nimbus
+    nimbus_data_dir: /var/nimbus-storage/nimbus/data/shared_medalla_0
+    validator_keys_path: /var/nimbus-storage/nimbus/validator_keys
+    external_ip: "{{ lookup('env', 'EXTERNAL_IP') }}"
   tasks:
     - name: Create nimbus user
       tags:
@@ -16,12 +17,20 @@
         create_home: true
         shell: /bin/bash
 
-    - name: Upload executable
+    - name: Upload beacon node executable
       tags:
         - never
         - upload_exec
       copy:
         src: ../../build/beacon_node
+        dest: /usr/bin/
+
+    - name: Upload ncli_db executable
+      tags:
+        - never
+        - upload_exec
+      copy:
+        src: ../../build/ncli_db
         dest: /usr/bin/
 
     - name: Upload run file
@@ -32,13 +41,23 @@
         src: nimbus_run
         dest: /usr/bin/
 
-    - name: Fix executable permissions
+    - name: Fix executable beacon_node permissions
       tags:
         - setup
         - chmod
         - upload_exec
       file:
         dest: /usr/bin/beacon_node
+        mode: g+rx,o+rx
+
+    - name: Fix executable ncli_db permissions
+      tags:
+        - setup
+        - chmod
+        - upload_exec
+
+      file:
+        dest: /usr/bin/ncli_db
         mode: g+rx,o+rx
 
     - name: Fix run file permissions

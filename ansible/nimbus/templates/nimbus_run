@@ -11,4 +11,5 @@ beacon_node \
   --metrics \
   --metrics-port=8008 \
   --rpc \
-  --rpc-port=9190
+  --rpc-port=9190 \
+  --nat="extip:{{ external_ip }}"
