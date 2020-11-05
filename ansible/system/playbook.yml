@@ -53,6 +53,11 @@
     - name: Install required system packages
       apt: name={{ sys_packages }} state=latest
 
+# Time sync
+
+    - name: Configure time sync
+      command: /usr/bin/timedatectl set-ntp on
+
 # UFW Setup
     - name: UFW - Allow SSH connections
       ufw:
