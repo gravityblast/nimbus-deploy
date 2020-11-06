@@ -5,7 +5,7 @@ beacon_node \
   --log-level="DEBUG" \
   --log-file={{ nimbus_data_dir }}/log/nbc_bn.log \
   --data-dir={{ nimbus_data_dir }} \
-  --web3-url=wss://goerli.infura.io/ws/v3/809a18497dd74102b5f37d25aae3c85a \
+  --web3-url={{ web3_url }} \
   --tcp-port=9000 \
   --udp-port=9000 \
   --metrics \

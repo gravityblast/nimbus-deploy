@@ -4,6 +4,7 @@
     nimbus_user: nimbus
     nimbus_data_dir: /var/nimbus-storage/nimbus/data/shared_medalla_0
     validator_keys_path: /var/nimbus-storage/nimbus/validator_keys
+    web3_url: "{{ lookup('env', 'WEB3_URL') }}"
     external_ip: "{{ lookup('env', 'EXTERNAL_IP') }}"
   tasks:
     - name: Create nimbus user
