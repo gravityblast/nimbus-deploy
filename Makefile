@@ -76,8 +76,8 @@ endif
 
 # It prints what to run on the server to import your keys in nimbus.
 step_08_import_keys: config
-	@echo "run this on the server:"
-	@echo "sudo beacon_node deposits import  --data-dir=/var/nimbus-storage/nimbus/data/shared_medalla_0 /var/nimbus/validator_keys/"
+	@echo "run this on the server with your nimbus user:"
+	@echo "beacon_node deposits import  --data-dir=/var/nimbus-storage/nimbus/data/shared_medalla_0 /var/nimbus-storage/nimbus/validator_keys/"
 
 # Removes the validator keys from the server.
 step_09_remove_keys: config

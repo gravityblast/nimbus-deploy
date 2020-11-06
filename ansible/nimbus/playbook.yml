@@ -96,7 +96,7 @@
         - never
         - upload_keys
       copy:
-        src: "../assets/validator_keys"
+        src: "../../assets/validator_keys"
         dest: "{{ validator_keys_path }}"
         owner: "{{ nimbus_user }}"
         group: "{{ nimbus_user }}"
