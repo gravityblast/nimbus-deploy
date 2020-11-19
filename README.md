@@ -13,6 +13,8 @@ Copy inventory.yml.example to inventory.yml and set your server name.
 
 ## Steps
 
+**The steps are going to be updated frequently now so check the Makefile for now**
+
 ### Step 1
 
 `make step_01_setup_system`
