@@ -63,40 +63,48 @@ step_04_docker_build_nimbus: config docker_build_nimbus
 step_05_upload_nimbus_executable: config
 	ansible-playbook -i inventory.yml ansible/nimbus/playbook.yml --tags upload_exec
 
+# It downloads the nimbus executable from the github release.
+step_05_download_release:
+	ansible-playbook -i inventory.yml ansible/nimbus/playbook.yml --tags download_release
+
 # It creates a nimbus user used to run nimbus, and the folders in /var/nimbus-storage/nimbus.
 step_06_setup_nimbus: config
 	ansible-playbook -i inventory.yml ansible/nimbus/playbook.yml --tags setup
 
+# It enables the systemd nimbus service.
+step_07_sync_nimbus: config
+	ansible-playbook -i inventory.yml ansible/nimbus/playbook.yml --tags run
+
 # It uploads your validators keys. They must be in ./assets/validator_keys.
-step_07_upload_keys: config
+step_08_upload_keys: config
 ifeq ($(wildcard ./assets/validator_keys),)
 	$(error "the ./assets/validator_keys folder must exist")
 endif
 	ansible-playbook -i inventory.yml ansible/nimbus/playbook.yml --tags upload_keys
 
 # It prints what to run on the server to import your keys in nimbus.
-step_08_import_keys: config
+step_09_import_keys: config
 	@echo "run this on the server with your nimbus user:"
-	@echo "beacon_node deposits import  --data-dir=/var/nimbus-storage/nimbus/data/shared_medalla_0 /var/nimbus-storage/nimbus/validator_keys/"
+	@echo "nimbus_beacon_node deposits import  --data-dir=/var/nimbus-storage/nimbus/data/shared_$(NIMBUS_NETWORK)_0 /var/nimbus-storage/nimbus/validator_keys/"
 
 # Removes the validator keys from the server.
-step_09_remove_keys: config
+step_10_remove_keys: config
 	ansible-playbook -i inventory.yml ansible/nimbus/playbook.yml --tags remove_keys
 
 # It enables the systemd nimbus service.
-step_10_run_nimbus: config
+step_11_restart_nimbus: config
 	ansible-playbook -i inventory.yml ansible/nimbus/playbook.yml --tags run
 
 # It builds a docker image used to build eth2stats.
-step_11_build_eth2stats_docker_image: config build_eth2stats_docker_image
+step_12_build_eth2stats_docker_image: config build_eth2stats_docker_image
 
 # It builds eth2stats inside docker.
-step_12_docker_build_eth2stats: config docker_build_eth2stats
+step_13_docker_build_eth2stats: config docker_build_eth2stats
 
 # It uploads the eth2stats executable.
-step_13_upload_eth2stats_executable: config
+step_14_upload_eth2stats_executable: config
 	ansible-playbook -i inventory.yml ansible/eth2stats/playbook.yml --tags upload_exec
 
 # It runs eth2stats taking the node name from the NIMBUS_NODE_NAME env variable.
-step_14_run_eth2stats: config
+step_15_run_eth2stats: config
 	ansible-playbook -i inventory.yml ansible/eth2stats/playbook.yml

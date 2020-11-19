@@ -1,10 +1,9 @@
 #!/usr/bin/env sh
 
-beacon_node \
-  --network=medalla \
-  --log-level="DEBUG" \
-  --log-file={{ nimbus_data_dir }}/log/nbc_bn.log \
+{{ nimbus_executable_name }} \
+  --network={{ nimbus_network }} \
   --data-dir={{ nimbus_data_dir }} \
+  --log-file={{ nimbus_data_dir }}/log/nbc_bn.log \
   --web3-url={{ web3_url }} \
   --tcp-port=9000 \
   --udp-port=9000 \

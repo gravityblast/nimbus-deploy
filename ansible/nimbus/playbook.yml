@@ -1,11 +1,15 @@
 - hosts: all
   become: true
   vars:
+    nimbus_network: "{{ lookup('env', 'NIMBUS_NETWORK') }}"
+    nimbus_executable_name: nimbus_beacon_node
     nimbus_user: nimbus
-    nimbus_data_dir: /var/nimbus-storage/nimbus/data/shared_medalla_0
+    nimbus_data_dir: "/var/nimbus-storage/nimbus/data/shared_{{ nimbus_network }}_0"
     validator_keys_path: /var/nimbus-storage/nimbus/validator_keys
     web3_url: "{{ lookup('env', 'WEB3_URL') }}"
     external_ip: "{{ lookup('env', 'EXTERNAL_IP') }}"
+    nimbus_release_url: "{{ lookup('env', 'NIMBUS_RELEASE_URL') }}"
+    nimbus_release_folder: /tmp/nimbus
   tasks:
     - name: Create nimbus user
       tags:
@@ -18,21 +22,58 @@
         create_home: true
         shell: /bin/bash
 
-    - name: Upload beacon node executable
+    - name: Upload nimbus executable
       tags:
         - never
         - upload_exec
       copy:
-        src: ../../build/beacon_node
+        src: "../../build/{{ nimbus_executable_name }}"
         dest: /usr/bin/
 
-    - name: Upload ncli_db executable
+    - name: Remove old release folder
       tags:
-        - never
-        - upload_exec
-      copy:
-        src: ../../build/ncli_db
-        dest: /usr/bin/
+        - download_release
+      file:
+        state: absent
+        path: "{{ nimbus_release_folder }}"
+
+    - name: Re-create release folder
+      tags:
+        - download_release
+      file:
+        path: "{{ nimbus_release_folder }}"
+        mode: "0750"
+        state: directory
+        owner: "{{ nimbus_user }}"
+        group: "{{ nimbus_user }}"
+
+    - name: Download nimbus release
+      tags:
+        - download_release
+      get_url:
+        url: "{{ nimbus_release_url }}"
+        dest: "{{ nimbus_release_folder }}/nimbus.tgz"
+
+    - name: Extract release archive
+      tags:
+        - download_release
+      unarchive:
+        remote_src: yes
+        src: "{{ nimbus_release_folder }}/nimbus.tgz"
+        dest: "{{ nimbus_release_folder }}"
+
+    - name: Move release executable to /usr/bin
+      tags:
+        - download_release
+      command: "sh -c 'mv {{ nimbus_release_folder }}/*/build/nimbus_beacon_node /usr/bin/{{ nimbus_executable_name }}'"
+
+    # - name: Upload ncli_db executable
+    #   tags:
+    #     - never
+    #     - upload_exec
+    #   copy:
+    #     src: ../../build/ncli_db
+    #     dest: /usr/bin/
 
     - name: Upload run file
       tags:
@@ -42,24 +83,24 @@
         src: nimbus_run
         dest: /usr/bin/
 
-    - name: Fix executable beacon_node permissions
+    - name: Fix beacon node executable permissions
       tags:
-        - setup
         - chmod
         - upload_exec
+        - download_release
       file:
-        dest: /usr/bin/beacon_node
+        dest: "/usr/bin/{{ nimbus_executable_name }}"
         mode: g+rx,o+rx
 
-    - name: Fix executable ncli_db permissions
-      tags:
-        - setup
-        - chmod
-        - upload_exec
+    # - name: Fix executable ncli_db permissions
+    #   tags:
+    #     - setup
+    #     - chmod
+    #     - upload_exec
 
-      file:
-        dest: /usr/bin/ncli_db
-        mode: g+rx,o+rx
+      # file:
+      #   dest: /usr/bin/ncli_db
+      #   mode: g+rx,o+rx
 
     - name: Fix run file permissions
       tags:
@@ -75,7 +116,6 @@
         - setup
         - folders
         - upload_keys
-        - foo
       file:
         path: "{{ nimbus_data_dir }}"
         mode: "0750"
