@@ -7,8 +7,6 @@ User=nimbus
 Group=nimbus
 Restart=always
 LogLevelMax=err
-RuntimeMaxSec=21600
-# RuntimeMaxSec=7200
 
 [Install]
 WantedBy=default.target
