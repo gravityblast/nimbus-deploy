@@ -1,0 +1,14 @@
+[Unit]
+Description=Prometheus Service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/prometheus --config.file {{ prometheus_dir }}/prometheus.yml --storage.tsdb.path {{ prometheus_dir }}/data
+User=prometheus
+Group=prometheus
+Restart=always
+LogLevelMax=err
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=Node Exporter Service
+
+[Service]
+ExecStart=/usr/bin/node_exporter
+User=prometheus
+Group=prometheus
+Restart=always
+LogLevelMax=err
+
+[Install]
+WantedBy=default.target

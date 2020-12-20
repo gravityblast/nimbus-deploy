@@ -1,0 +1,170 @@
+- hosts: all
+  become: true
+  vars:
+    prometheus_user: prometheus
+    prometheus_executable_name: prometheus
+    prometheus_release_url: "{{ lookup('env', 'PROMETHEUS_RELEASE_URL') }}"
+    prometheus_release_folder: /tmp/prometheus
+    prometheus_dir: /var/prometheus
+    node_exporter_executable_name: node_exporter
+    node_exporter_release_url: "{{ lookup('env', 'NODE_EXPORTER_RELEASE_URL') }}"
+    node_exporter_release_folder: /tmp/node_exporter
+  tasks:
+    - name: Create prometheus user
+      tags:
+        - setup
+        - users
+      user:
+        name: "{{ prometheus_user }}"
+        state: present
+        append: true
+        create_home: true
+        shell: /bin/bash
+
+    - name: Remove old release folder
+      tags:
+        - download_release
+      file:
+        state: absent
+        path: "{{ prometheus_release_folder }}"
+
+    - name: Re-create release folder
+      tags:
+        - download_release
+      file:
+        path: "{{ prometheus_release_folder }}"
+        mode: "0750"
+        state: directory
+        owner: "{{ prometheus_user }}"
+        group: "{{ prometheus_user }}"
+
+    - name: Download prometheus release
+      tags:
+        - download_release
+      get_url:
+        url: "{{ prometheus_release_url }}"
+        dest: "{{ prometheus_release_folder }}/prometheus.tgz"
+
+    - name: Extract release archive
+      tags:
+        - download_release
+      unarchive:
+        remote_src: yes
+        src: "{{ prometheus_release_folder }}/prometheus.tgz"
+        dest: "{{ prometheus_release_folder }}"
+
+    - name: Move release executable to /usr/bin
+      tags:
+        - download_release
+      command: "sh -c 'mv {{ prometheus_release_folder }}/*/prometheus /usr/bin/{{ prometheus_executable_name }}'"
+
+    - name: Fix prometheus executable permissions
+      tags:
+        - chmod
+        - download_release
+      file:
+        dest: "/usr/bin/{{ prometheus_executable_name }}"
+        mode: g+rx,o+rx
+
+    ### NODE EXPORTER
+    - name: Remove old node exporter release folder
+      tags:
+        - download_release
+      file:
+        state: absent
+        path: "{{ node_exporter_release_folder }}"
+
+    - name: Re-create node exporter release folder
+      tags:
+        - download_release
+      file:
+        path: "{{ node_exporter_release_folder }}"
+        mode: "0750"
+        state: directory
+        owner: "{{ prometheus_user }}"
+        group: "{{ prometheus_user }}"
+
+    - name: Download node_exporter release
+      tags:
+        - download_release
+      get_url:
+        url: "{{ node_exporter_release_url }}"
+        dest: "{{ node_exporter_release_folder }}/node_exporter.tgz"
+
+    - name: Extract node_exporter release archive
+      tags:
+        - download_release
+      unarchive:
+        remote_src: yes
+        src: "{{ node_exporter_release_folder }}/node_exporter.tgz"
+        dest: "{{ node_exporter_release_folder }}"
+
+    - name: Move node_exporter release executable to /usr/bin
+      tags:
+        - download_release
+      command: "sh -c 'mv {{ node_exporter_release_folder }}/*/node_exporter /usr/bin/{{ node_exporter_executable_name }}'"
+
+    - name: Fix node_exporter executable permissions
+      tags:
+        - chmod
+        - download_release
+      file:
+        dest: "/usr/bin/{{ node_exporter_executable_name }}"
+        mode: g+rx,o+rx
+    ### NODE EXPORTER END
+
+    - name: Create prometheus data folder
+      tags:
+        - setup
+        - folders
+      file:
+        path: "{{ prometheus_dir }}"
+        mode: "0750"
+        state: directory
+        owner: "{{ prometheus_user }}"
+        group: "{{ prometheus_user }}"
+
+    - name: Install prometheus unit files
+      tags:
+        - setup
+        - systemd
+      template:
+        src: "prometheus.service"
+        dest: "/etc/systemd/system/prometheus.service"
+
+    - name: Install node_exporter unit files
+      tags:
+        - setup
+        - systemd
+      template:
+        src: "node_exporter.service"
+        dest: "/etc/systemd/system/node_exporter.service"
+
+    - name: Upload prometheus config file
+      tags:
+        - setup
+      template:
+        src: "prometheus.yml"
+        dest: "{{ prometheus_dir }}/prometheus.yml"
+
+    - name: Enable node_exporter service
+      tags:
+        - systemd
+        - run
+        - restart
+      systemd:
+        name: node_exporter
+        state: restarted
+        enabled: true
+        daemon_reload: true
+
+    - name: Enable prometheus service
+      tags:
+        - systemd
+        - run
+        - restart
+      systemd:
+        name: prometheus
+        state: restarted
+        enabled: true
+        daemon_reload: true
