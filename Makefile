@@ -108,3 +108,18 @@ step_14_upload_eth2stats_executable: config
 # It runs eth2stats taking the node name from the NIMBUS_NODE_NAME env variable.
 step_15_run_eth2stats: config
 	ansible-playbook -i inventory.yml ansible/eth2stats/playbook.yml
+
+step_16_setup_prometheus:
+	ansible-playbook -i inventory.yml ansible/prometheus/playbook.yml --tags setup
+
+step_17_download_prometheus:
+	ansible-playbook -i inventory.yml ansible/prometheus/playbook.yml --tags download_release
+
+step_18_run_prometheus:
+	ansible-playbook -i inventory.yml ansible/prometheus/playbook.yml --tags run
+
+step_19_install_grafana:
+	ansible-playbook -i inventory.yml ansible/grafana/playbook.yml --tags install
+
+step_20_run_grafana:
+	ansible-playbook -i inventory.yml ansible/grafana/playbook.yml --tags run
