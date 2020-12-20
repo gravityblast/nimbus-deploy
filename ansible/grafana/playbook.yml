@@ -1,0 +1,39 @@
+- hosts: all
+  become: true
+  vars:
+    dependencies: ['apt-transport-https', 'software-properties-common']
+  tasks:
+    - name: Install required system packages
+      tags:
+        - install
+      apt: name={{ dependencies }} state=latest
+
+    - name: Add grafana Aapt signing key
+      tags:
+        - install
+      apt_key:
+        url: https://packages.grafana.com/gpg.key
+        state: present
+
+    - name: Add grafana repository into sources list
+      tags:
+        - install
+      apt_repository:
+        repo: deb https://packages.grafana.com/oss/deb stable main
+        state: present
+
+    - name: Install grafana
+      tags:
+        - install
+      apt: name=grafana state=latest update_cache=yes
+
+    - name: Enable grafana-server service
+      tags:
+        - systemd
+        - run
+        - restart
+      systemd:
+        name: grafana-server
+        state: restarted
+        enabled: true
+        daemon_reload: true
