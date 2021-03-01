@@ -5,12 +5,12 @@ RUN apt-get update && apt-get install -y \
       git \
       libpcre3-dev
 
-ADD https://api.github.com/repos/status-im/nim-beacon-chain/git/refs/heads/master version.json
+ADD https://api.github.com/repos/status-im/nimbus-eth2/git/refs/heads/stable version.json
 
 RUN git clone \
       --depth 1 \
-      -b master \
-      https://github.com/status-im/nim-beacon-chain \
+      -b stable \
+      https://github.com/status-im/nimbus-eth2 \
       /nimbus
 
 COPY ./build-nimbus.sh /nimbus/

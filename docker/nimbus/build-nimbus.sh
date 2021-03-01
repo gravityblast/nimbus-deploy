@@ -4,7 +4,7 @@ export NIMFLAGS="-d:insecure";
 echo "fetching..." && \
   git fetch && \
   echo "resetting..." && \
-  git reset --hard origin/master && \
+  git reset --hard origin/stable && \
   echo "updating..." && \
   make update && \
   echo "building beacon_node... (TARGET: $MAKE_BUILD_TARGET - NIMFLAGS: $NIMFLAGS)" && \
