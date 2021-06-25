@@ -1,5 +1,5 @@
 export MAKE_BUILD_TARGET=nimbus_beacon_node;
-export NIMFLAGS="-d:insecure";
+# export NIMFLAGS="-d:insecure"; # old, used to get metrics.
 
 echo "fetching..." && \
   git fetch && \
